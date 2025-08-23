@@ -28,7 +28,7 @@ public class teleOpMecanumDriveCommand extends CommandBase {
     @Override
     public void execute(){
 
-        driveSub.drive(ySupplier.get(), xSupplier.get(), rSupplier.get());
+        driveSub.drive(ySupplier.get(), xSupplier.get(), rSupplier.get(), true, true);
     }
 
 

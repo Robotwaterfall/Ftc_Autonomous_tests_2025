@@ -1,8 +1,13 @@
 package org.firstinspires.ftc.teamcode.Subsystem;
 
 import com.arcrobotics.ftclib.command.SubsystemBase;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
-import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.IMU;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 public class mecanumDriveSubsystem extends SubsystemBase {
 
@@ -10,20 +15,66 @@ public class mecanumDriveSubsystem extends SubsystemBase {
     public double fwdPower;
     public double strPower;
     public double rotPower;
+    private IMU imu;
+    private PIDController headingController;
+    private double targetHeading;
 
     public mecanumDriveSubsystem (Motor Fl, Motor Fr,
-                                  Motor Rl, Motor Rr){
+                                  Motor Rl, Motor Rr, HardwareMap hardwareMap){
         m_Fl = Fl;
         m_Fr = Fr;
         m_Rl = Rl;
         m_Rr = Rr;
 
+        //IMU setup
+        imu = hardwareMap.get(IMU.class, "imu");
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD
+                )
+        );
+
+        imu.initialize(parameters);
+
+        //PID controller for heading hold
+        //TODO: tune the gains!
+        headingController = new PIDController(0.01, 0, 0.001);
+        targetHeading = getHeading();
+
+
     }
 
-    public void drive(double forward, double strafe, double rotation){
+    public double getHeading(){
+        return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+    }
+    private double wrapAngle(double angle){
+        while (angle > Math.PI) angle -= 2 * Math.PI;
+        while (angle < -Math.PI) angle += 2 * Math.PI;
+        return angle;
+    }
+
+    public void drive(double forward, double strafe, double rotation,
+                      boolean fieldCentric, boolean headingLock){
         fwdPower = forward;
         strPower = strafe;
         rotPower = rotation;
+
+        // Field-centric transformation
+        if(fieldCentric){
+            double heading = getHeading();
+            double temp = forward * Math.cos(heading) + strafe * Math.sin(heading);
+            strafe = -forward * Math.sin(heading) + strafe * Math.cos(heading);
+            forward = temp;
+        }
+
+        //heading lock only when the driver is NOT commanding rotation
+        if(headingLock && Math.abs(rotation) < 0.05){
+            double error = wrapAngle(targetHeading - getHeading());
+            rotation = headingController.calculate(0, error);
+        } else {
+            targetHeading = getHeading();
+        }
 
         double Fl = forward + strafe + rotation;
         double Fr = forward - strafe - rotation;
@@ -41,33 +92,18 @@ public class mecanumDriveSubsystem extends SubsystemBase {
         m_Rr.set(Rr / max);
 
 
+
+
     }
 
-    public double getFwdPower(){
-        return fwdPower;
-    }
+    //Power getters
+    public double getFwdPower(){return fwdPower;}
+    public double getStrPower(){return strPower;}
+    public double getRotPower(){return rotPower;}
 
-    public double getStrPower(){
-        return strPower;
-    }
-
-    public double getRotPower(){
-        return rotPower;
-    }
-
-    public Motor getM_Fl() {
-        return m_Fl;
-    }
-
-    public Motor getM_Fr() {
-        return m_Fr;
-    }
-
-    public Motor getM_Rl() {
-        return m_Rl;
-    }
-
-    public Motor getM_Rr() {
-        return m_Rr;
-    }
+    //Motor getters
+    public Motor getM_Fl() {return m_Fl;}
+    public Motor getM_Fr() {return m_Fr;}
+    public Motor getM_Rl() {return m_Rl;}
+    public Motor getM_Rr() {return m_Rr;}
 }

@@ -19,7 +19,8 @@ public class RobotContainer extends CommandOpMode {
                 new Motor(hardwareMap, "FrontLeft"),
                 new Motor(hardwareMap, "FrontRight"),
                 new Motor(hardwareMap, "RearLeft"),
-                new Motor(hardwareMap, "RearRight")
+                new Motor(hardwareMap, "RearRight"),
+                hardwareMap
         );
 
         driverJoystick = new GamepadEx(gamepad1);
