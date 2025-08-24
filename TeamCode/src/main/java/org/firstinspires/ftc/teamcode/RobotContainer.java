@@ -15,6 +15,8 @@ public class RobotContainer extends CommandOpMode {
 
     @Override
     public void initialize() {
+
+        //Mecanum Motor binding
         driveSub = new mecanumDriveSubsystem(
                 new Motor(hardwareMap, "FrontLeft"),
                 new Motor(hardwareMap, "FrontRight"),
@@ -31,7 +33,10 @@ public class RobotContainer extends CommandOpMode {
 
     public void setDefaultCommands(){
 
-        //sets default that joystick's will always be able to drive unless autonomous
+        /*
+         * sets the joysticks to always work to drive the robot
+         * unless a different Op mode is selected
+         */
         driveSub.setDefaultCommand(
                 new teleOpMecanumDriveCommand(
                         driveSub,

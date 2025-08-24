@@ -15,8 +15,8 @@ public class mecanumDriveSubsystem extends SubsystemBase {
     public double fwdPower;
     public double strPower;
     public double rotPower;
-    private IMU imu;
-    private PIDController headingController;
+    private final IMU imu;
+    private final PIDController headingController;
     private double targetHeading;
 
     public mecanumDriveSubsystem (Motor Fl, Motor Fr,
@@ -38,8 +38,8 @@ public class mecanumDriveSubsystem extends SubsystemBase {
         imu.initialize(parameters);
 
         //PID controller for heading hold
-        //TODO: tune the gains!
-        headingController = new PIDController(0.01, 0, 0.001);
+        //TODO: tune the gains
+        headingController = new PIDController(1, 0, 0);
         targetHeading = getHeading();
 
 
@@ -48,6 +48,15 @@ public class mecanumDriveSubsystem extends SubsystemBase {
     public double getHeading(){
         return imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
     }
+
+    /**
+     * wraps a angle in radians to the range [-pi, pi]
+     * This ensures that the angle differences are always measured
+     * along the shortest path eg. [-181, 179]
+     *----------------------------------------------------------------
+     * This is super useful for PID heading control to prevent any
+     * unusual behavior crossing the -pi, pi boundary
+     */
     private double wrapAngle(double angle){
         while (angle > Math.PI) angle -= 2 * Math.PI;
         while (angle < -Math.PI) angle += 2 * Math.PI;

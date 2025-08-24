@@ -1,8 +1,6 @@
 package org.firstinspires.ftc.teamcode.Command;
 
 import com.arcrobotics.ftclib.command.CommandBase;
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.hardware.motors.Motor;
 
 import org.firstinspires.ftc.teamcode.Subsystem.mecanumDriveSubsystem;
 
@@ -12,8 +10,6 @@ public class teleOpMecanumDriveCommand extends CommandBase {
     @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
     private final mecanumDriveSubsystem driveSub;
     private final Supplier<Double> xSupplier, ySupplier, rSupplier;
-
-
 
     public teleOpMecanumDriveCommand(mecanumDriveSubsystem driveSub,
                                      Supplier<Double> xSupplier, Supplier<Double> ySupplier,
