@@ -12,6 +12,7 @@ import org.firstinspires.ftc.teamcode.Subsystem.mecanumDriveSubsystem;
 public class RobotContainer extends CommandOpMode {
     private mecanumDriveSubsystem driveSub;
     private GamepadEx driverJoystick;
+    private TelemetryManager telemetryManager;
 
     @Override
     public void initialize() {
@@ -29,6 +30,7 @@ public class RobotContainer extends CommandOpMode {
 
         runCommands();
         setDefaultCommands();
+        telemetryManager.runTelemetry();
     }
 
     public void setDefaultCommands(){
